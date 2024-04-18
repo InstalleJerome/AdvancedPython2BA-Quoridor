@@ -10,13 +10,15 @@ import json
 
 sconnect=socket.socket()
 
-address=(('Localhost',3000))
-
+address=(('localhost',3000))
+matricule=input("matricule :")
+port=int(input("port :"))
+nom=input("Nom :")
 jsonrequest={
    "request": "subscribe",
-   "port": 8888,
-   "name": "fun_name_for_the_client",
-   "matricules": ["22237"]
+   "port": port,
+   "name": nom,
+   "matricules": [matricule]
 }
 
 request=json.dumps(jsonrequest).encode()
@@ -28,13 +30,14 @@ print(json.loads(res))
 
 sconnect.close()
 
-
+    
 server=socket.socket()
+server.settimeout(0.5)
 
 ping_request={
    "request": "ping"
 }
-server.bind(('localhost',8888))
+server.bind(('localhost',int(port)))
 server.listen()
 
 
@@ -43,11 +46,16 @@ response={
     "response" : "pong"
 }
 while True:
-    client,address= server.accept()
-    req=json.loads(client.recv(2048).decode())
-    if req["request"]=="ping":
-        response_pong=json.dumps(response).encode()
-        x=0
-        while x<len(response_pong):
-               x += client.send(response_pong)
-    client.close()
+    try :
+        client,address= server.accept()
+        req=json.loads(client.recv(2048).decode())
+        if req["request"]=="ping":
+            response_pong=json.dumps(response).encode()
+            x=0
+            while x<len(response_pong):
+                x += client.send(response_pong)
+        if req["request"]=="play":
+            print(req["state"]["board"])
+        client.close()
+    except socket.timeout:
+        pass
