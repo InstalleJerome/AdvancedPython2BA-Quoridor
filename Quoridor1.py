@@ -31,12 +31,17 @@ print(json.loads(res))
 sconnect.close()
 
 def vertical_move(p_init1,p_init2,indice):
-    if 
-    if indice==float(1):
-        p_init=[p_init1[0]-4,p_init1[1]]
     if indice==float(0):
-        p_init=[p_init1[0]+4,p_init1[1]]        
-    return p_init
+        if p_init2[0]==p_init1[0]+2:
+            p_init1=[p_init1[0]+4,p_init1[1]]
+        else:
+            p_init1=[p_init1[0]+2,p_init1[1]]
+    if indice==float(1):
+        if p_init2[0]==p_init1[0]-2:
+            p_init1=[p_init1[0]-4,p_init1[1]]
+        else:
+            p_init1=[p_init1[0]-2,p_init1[1]] 
+    return p_init1
 
 server=socket.socket()
 server.settimeout(0.5)
@@ -74,7 +79,8 @@ while True:
             while x<len(response_pong):
                 x += client.send(response_pong)
         if req["request"]=="play":
-            indice=0
+            my_indice=0
+            other_indice=0
             my_position=[0,0]
             other_position=[0,0]
             if req["state"]["players"][0]==nom:
@@ -89,24 +95,25 @@ while True:
                         my_position=[i,j]
                     if req["state"]["board"][i][j]==other_indice:
                         other_position=[i,j]
-            if indice==float(0):
-                if req["state"]["board"][position[0]+1][position[1]]==float(3):
+            if my_indice==float(0):
+                if req["state"]["board"][my_position[0]+1][my_position[1]]==float(3):
                     move={
                         "type":"pawn",
-                        "position": [vertical_move(position,indice)],
+                        "position": [vertical_move(my_position,other_position,my_indice)],
                     }
-            if indice==float(1):
-                if req["state"]["board"][position[0]-1][position[1]]==float(3):
+            if my_indice==float(1):
+                if req["state"]["board"][my_position[0]-1][my_position[1]]==float(3):
                     move={
                         "type":"pawn",
-                        "position": [vertical_move(position,indice)],
+                        "position": [vertical_move(my_position,other_position,my_indice)],
                     }
             response_move={
                     "response": "move",
                     "move": move,
-                    "message": "Fun message"
+                    "message": "Yo yo yo"
                     }
             rep_move=json.dumps(response_move).encode()
+            x=0
             while x<len(rep_move):
                 x+=client.send(rep_move)
         client.close()
