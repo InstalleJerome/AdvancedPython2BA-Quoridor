@@ -10,10 +10,13 @@ import json
 
 sconnect=socket.socket()
 
-address=(('localhost',3000))
+#adresse de connection
+address=(('172.17.10.59',3000))
+#identité
 matricule=input("matricule :")
 port=int(input("port :"))
 nom=input("Nom :")
+
 jsonrequest={
    "request": "subscribe",
    "port": port,
@@ -32,10 +35,11 @@ sconnect.close()
 
 def vertical_move(p_init1,p_init2,indice):
     if indice==float(0):
-        if p_init2[0]==p_init1[0]+2:
-            p_init1=[p_init1[0]+4,p_init1[1]]
-        else:
-            p_init1=[p_init1[0]+2,p_init1[1]]
+        if p_init2!=[16,p_init1[1]]:
+            if p_init2[0]==p_init1[0]+2:
+                p_init1=[p_init1[0]+4,p_init1[1]]
+            else:
+                p_init1=[p_init1[0]+2,p_init1[1]]
     if indice==float(1):
         if p_init2[0]==p_init1[0]-2:
             p_init1=[p_init1[0]-4,p_init1[1]]
@@ -43,13 +47,14 @@ def vertical_move(p_init1,p_init2,indice):
             p_init1=[p_init1[0]-2,p_init1[1]] 
     return p_init1
 
+
 server=socket.socket()
 server.settimeout(0.5)
 
 ping_request={
    "request": "ping"
 }
-server.bind(('localhost',int(port)))
+server.bind(('0.0.0.0',int(port)))
 server.listen()
 
 
