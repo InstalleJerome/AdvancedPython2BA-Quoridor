@@ -11,7 +11,7 @@ import json
 sconnect=socket.socket()
 
 #adresse de connection
-address=(('172.17.10.59',3000))
+address=(('localhost',3000))
 #identité
 matricule=input("matricule :")
 port=int(input("port :"))
@@ -35,26 +35,37 @@ sconnect.close()
 
 def vertical_move(p_init1,p_init2,indice):
     if indice==float(0):
-        if p_init2!=[16,p_init1[1]]:
-            if p_init2[0]==p_init1[0]+2:
-                p_init1=[p_init1[0]+4,p_init1[1]]
-            else:
-                p_init1=[p_init1[0]+2,p_init1[1]]
+        if p_init2[0]==p_init1[0]+2 and p_init2[1]==p_init1[1]:
+            p_init1=[p_init1[0]+4,p_init1[1]]
+        else:
+            p_init1=[p_init1[0]+2,p_init1[1]]
     if indice==float(1):
-        if p_init2[0]==p_init1[0]-2:
+        if p_init2[0]==p_init1[0]-2 and p_init2[1]==p_init1[1]:
             p_init1=[p_init1[0]-4,p_init1[1]]
         else:
             p_init1=[p_init1[0]-2,p_init1[1]] 
     return p_init1
 
+def move_left(p_init1,p_init2):
+    if p_init2[1]==p_init1[1]-2 and p_init1[0]==p_init2[0]:
+        p_init1=[p_init1[0],p_init1[1]-4]
+    else:
+        p_init1=[p_init1[0],p_init1[1]-2]
+    return p_init1
 
+def move_right(p_init1,p_init2):
+    if p_init2[1]==p_init1[1]+2 and p_init1[0]==p_init2[0]:
+        p_init1=[p_init1[0],p_init1[1]+4]
+    else:
+        p_init1=[p_init1[0],p_init1[1]+2]
+    return p_init1
 server=socket.socket()
 server.settimeout(0.5)
 
 ping_request={
    "request": "ping"
 }
-server.bind(('0.0.0.0',int(port)))
+server.bind(('localhost',int(port)))
 server.listen()
 
 
