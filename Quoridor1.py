@@ -17,6 +17,7 @@ matricule=input("matricule :")
 port=int(input("port :"))
 nom=input("Nom :")
 
+#requete pour se connecter
 jsonrequest={
    "request": "subscribe",
    "port": port,
@@ -26,6 +27,7 @@ jsonrequest={
 
 request=json.dumps(jsonrequest).encode()
 
+#permet d'envoyer la requete et de recevoir la réponse à cette requete (connection reussie ou non)
 sconnect.connect(address)
 sconnect.send(request)
 res = sconnect.recv(2048).decode()
@@ -33,19 +35,23 @@ print(json.loads(res))
 
 sconnect.close()
 
-def vertical_move(p_init1,p_init2,indice):
-    if indice==float(0):
-        if p_init2[0]==p_init1[0]+2 and p_init2[1]==p_init1[1]:
-            p_init1=[p_init1[0]+4,p_init1[1]]
-        else:
-            p_init1=[p_init1[0]+2,p_init1[1]]
-    if indice==float(1):
-        if p_init2[0]==p_init1[0]-2 and p_init2[1]==p_init1[1]:
-            p_init1=[p_init1[0]-4,p_init1[1]]
-        else:
-            p_init1=[p_init1[0]-2,p_init1[1]] 
+#permet de se déplacer verticalement
+def move_up(p_init1,p_init2):
+    if p_init2[0]==p_init1[0]-2 and p_init2[1]==p_init1[1]:
+        p_init1=[p_init1[0]-4,p_init1[1]]
+    else:
+        p_init1=[p_init1[0]-2,p_init1[1]]
     return p_init1
 
+def move_down(p_init1,p_init2):
+    if p_init2[0]==p_init1[0]+2 and p_init2[1]==p_init1[1]:
+        p_init1=[p_init1[0]+4,p_init1[1]]
+    else:
+        p_init1=[p_init1[0]+2,p_init1[1]]
+    return p_init1
+
+
+#permet de se déplacer sur la gauche
 def move_left(p_init1,p_init2):
     if p_init2[1]==p_init1[1]-2 and p_init1[0]==p_init2[0]:
         p_init1=[p_init1[0],p_init1[1]-4]
@@ -53,18 +59,23 @@ def move_left(p_init1,p_init2):
         p_init1=[p_init1[0],p_init1[1]-2]
     return p_init1
 
+#permet de se déplacer sur la droite
 def move_right(p_init1,p_init2):
     if p_init2[1]==p_init1[1]+2 and p_init1[0]==p_init2[0]:
         p_init1=[p_init1[0],p_init1[1]+4]
     else:
         p_init1=[p_init1[0],p_init1[1]+2]
     return p_init1
+
+#crée un socket qui va servir de serveur
 server=socket.socket()
 server.settimeout(0.5)
 
 ping_request={
    "request": "ping"
 }
+
+#se connecte au client de jeu
 server.bind(('localhost',int(port)))
 server.listen()
 
@@ -73,13 +84,15 @@ server.listen()
 response={
     "response" : "pong"
 }
+
+#boucle d'actions
 while True:
     try :
-        client,address= server.accept()
+        client,address= server.accept() #accepte la connection du client
         finished=False
         msg=b''
         req=None
-        while not finished:
+        while not finished: #boucle assurant la reception de l'entiereté du message
             msg+=client.recv(2048)
             try:
                 req=json.loads(msg.decode('utf8'))
@@ -89,39 +102,40 @@ while True:
             except UnicodeDecodeError:
                 pass
         
-        if req["request"]=="ping":
+        if req["request"]=="ping": #répond à la demande pour assurer la présence du joueur
             response_pong=json.dumps(response).encode()
             x=0
             while x<len(response_pong):
                 x += client.send(response_pong)
-        if req["request"]=="play":
+        if req["request"]=="play": #repond à la demande d'action de jeu
             my_indice=0
             other_indice=0
             my_position=[0,0]
             other_position=[0,0]
-            if req["state"]["players"][0]==nom:
+            if req["state"]["players"][0]==nom: #permet de savoir si on est joueur 1 ou 2
                 my_indice=float(0)
                 other_indice=float(1)
             else:
                 my_indice=float(1)
                 other_indice=float(0)
+            #permet de trouver les positions des 2 joueurs
             for i in range(len(req["state"]["board"])):
                 for j in range(len(req["state"]["board"][i])):
                     if req["state"]["board"][i][j]==my_indice:
                         my_position=[i,j]
                     if req["state"]["board"][i][j]==other_indice:
                         other_position=[i,j]
-            if my_indice==float(0):
+            if my_indice==float(0): #permet de bouger sur le plateau
                 if req["state"]["board"][my_position[0]+1][my_position[1]]==float(3):
                     move={
                         "type":"pawn",
-                        "position": [vertical_move(my_position,other_position,my_indice)],
+                        "position": [move_down(my_position,other_position)],
                     }
             if my_indice==float(1):
                 if req["state"]["board"][my_position[0]-1][my_position[1]]==float(3):
                     move={
                         "type":"pawn",
-                        "position": [vertical_move(my_position,other_position,my_indice)],
+                        "position": [move_up(my_position,other_position)],
                     }
             response_move={
                     "response": "move",
@@ -130,6 +144,7 @@ while True:
                     }
             rep_move=json.dumps(response_move).encode()
             x=0
+            #boucle d'envoi de l'action a effectuer
             while x<len(rep_move):
                 x+=client.send(rep_move)
         client.close()
