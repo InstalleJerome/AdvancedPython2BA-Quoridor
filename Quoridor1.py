@@ -77,6 +77,37 @@ def distance(position1,position2,indice):
         my_distance=position1[0]
         other_distance=16-position2[0]
     return [my_distance,other_distance]
+
+def block(position,indice,left_case,right_case):
+    blocker_pos1=[]
+    blocker_pos2=[]
+    if indice==float(0):
+        blocker_pos1=[position[0]-1,position[1]]
+        if position[1]==16:
+            blocker_pos2=[position[0]-1,position[1]-2]
+        if right_case==4 or right_case==5:
+            blocker_pos2=[position[0]-1,position[1]-2]
+        if left_case==4 or left_case==5:
+            blocker_pos2=[position[0]-1,position[1]+2]
+        if position[1]==0:
+            blocker_pos2=[position[0]-1,position[1]+2]
+        else:
+            blocker_pos2=[position[0]-1,position[1]-2]
+    if indice==float(1):
+        blocker_pos1=[position[0]+1,position[1]]
+        if position[1]==16:
+            blocker_pos2=[position[0]+1,position[1]-2]
+        if right_case==4 or right_case==5:
+            blocker_pos2=[position[0]+1,position[1]-2]
+        if left_case==4 or left_case==5:
+            blocker_pos2=[position[0]+1,position[1]+2]
+        if position[1]==0:
+            blocker_pos2=[position[0]+1,position[1]+2]
+        else:
+            blocker_pos2=[position[0]+1,position[1]-2]
+    return [blocker_pos1,blocker_pos2]
+
+
 #crée un socket qui va servir de serveur
 server=socket.socket()
 server.settimeout(0.5)
@@ -135,6 +166,11 @@ while True:
                         my_position=[i,j]
                     if req["state"]["board"][i][j]==other_indice:
                         other_position=[i,j]
+            if distance(my_position,other_position,my_indice)[0]<=distance(my_position,other_position,my_indice)[1]:
+                move={
+                    "type":"blocker",
+                    "position":block(other_position,my_indice,req["state"]["board"][other_position[0]][other_position[1]-1],req["state"]["board"][other_position[0]][other_position[1]+1])
+                }
             else:            
                 if my_indice==float(0): #permet de bouger sur le plateau
                     if req["state"]["board"][my_position[0]+1][my_position[1]]==float(3):
