@@ -67,6 +67,16 @@ def move_right(p_init1,p_init2):
         p_init1=[p_init1[0],p_init1[1]+2]
     return p_init1
 
+def distance(position1,position2,indice):
+    my_distance=0
+    other_distance=0
+    if indice==float(0):
+        my_distance=16-position1[0]
+        other_distance=position2[0]
+    elif indice==float(1):
+        my_distance=position1[0]
+        other_distance=16-position2[0]
+    return [my_distance,other_distance]
 #crée un socket qui va servir de serveur
 server=socket.socket()
 server.settimeout(0.5)
@@ -125,18 +135,19 @@ while True:
                         my_position=[i,j]
                     if req["state"]["board"][i][j]==other_indice:
                         other_position=[i,j]
-            if my_indice==float(0): #permet de bouger sur le plateau
-                if req["state"]["board"][my_position[0]+1][my_position[1]]==float(3):
-                    move={
-                        "type":"pawn",
-                        "position": [move_down(my_position,other_position)],
-                    }
-            if my_indice==float(1):
-                if req["state"]["board"][my_position[0]-1][my_position[1]]==float(3):
-                    move={
-                        "type":"pawn",
-                        "position": [move_up(my_position,other_position)],
-                    }
+            else:            
+                if my_indice==float(0): #permet de bouger sur le plateau
+                    if req["state"]["board"][my_position[0]+1][my_position[1]]==float(3):
+                        move={
+                            "type":"pawn",
+                            "position": [move_down(my_position,other_position)],
+                        }
+                if my_indice==float(1):
+                    if req["state"]["board"][my_position[0]-1][my_position[1]]==float(3):
+                        move={
+                            "type":"pawn",
+                            "position": [move_up(my_position,other_position)],
+                        }
             response_move={
                     "response": "move",
                     "move": move,
