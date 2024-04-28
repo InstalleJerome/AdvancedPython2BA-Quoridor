@@ -166,11 +166,17 @@ while True:
                         my_position=[i,j]
                     if req["state"]["board"][i][j]==other_indice:
                         other_position=[i,j]
-            if distance(my_position,other_position,my_indice)[0]<=distance(my_position,other_position,my_indice)[1]:
-                move={
-                    "type":"blocker",
-                    "position":block(other_position,my_indice,req["state"]["board"][other_position[0]][other_position[1]-1],req["state"]["board"][other_position[0]][other_position[1]+1])
-                }
+            if distance(my_position,other_position,my_indice)[0]>distance(my_position,other_position,my_indice)[1]:
+                if my_indice==float(0) and req["state"]["board"][other_position[0]-1][other_position[1]]!=4:
+                    move={
+                        "type":"blocker",
+                        "position":block(other_position,my_indice,req["state"]["board"][other_position[0]][other_position[1]-1],req["state"]["board"][other_position[0]][other_position[1]+1])
+                    }
+                if my_indice==float(1) and req["state"]["board"][other_position[0]+1][other_position[1]]!=4:
+                    move={
+                        "type":"blocker",
+                        "position":block(other_position,my_indice,req["state"]["board"][other_position[0]][other_position[1]-1],req["state"]["board"][other_position[0]][other_position[1]+1])
+                    }
             else:            
                 if my_indice==float(0): #permet de bouger sur le plateau
                     if req["state"]["board"][my_position[0]+1][my_position[1]]==float(3):
