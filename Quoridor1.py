@@ -85,9 +85,9 @@ def block(position,indice,left_case,right_case):
         blocker_pos1=[position[0]-1,position[1]]
         if position[1]==16:
             blocker_pos2=[position[0]-1,position[1]-2]
-        if right_case==4 or right_case==5:
+        if right_case==4:
             blocker_pos2=[position[0]-1,position[1]-2]
-        if left_case==4 or left_case==5:
+        if left_case==4:
             blocker_pos2=[position[0]-1,position[1]+2]
         if position[1]==0:
             blocker_pos2=[position[0]-1,position[1]+2]
@@ -97,9 +97,9 @@ def block(position,indice,left_case,right_case):
         blocker_pos1=[position[0]+1,position[1]]
         if position[1]==16:
             blocker_pos2=[position[0]+1,position[1]-2]
-        if right_case==4 or right_case==5:
+        if right_case==4:
             blocker_pos2=[position[0]+1,position[1]-2]
-        if left_case==4 or left_case==5:
+        if left_case==4:
             blocker_pos2=[position[0]+1,position[1]+2]
         if position[1]==0:
             blocker_pos2=[position[0]+1,position[1]+2]
@@ -166,16 +166,16 @@ while True:
                         my_position=[i,j]
                     if req["state"]["board"][i][j]==other_indice:
                         other_position=[i,j]
-            if distance(my_position,other_position,my_indice)[0]>distance(my_position,other_position,my_indice)[1]:
-                if my_indice==float(0) and req["state"]["board"][other_position[0]-1][other_position[1]]!=4:
+            if distance(my_position,other_position,my_indice)[0]>distance(my_position,other_position,my_indice)[1] and req["state"]["blockers"][int(my_indice)]>0:
+                if my_indice==float(0) and req["state"]["board"][other_position[0]-1][other_position[1]]==3:
                     move={
                         "type":"blocker",
-                        "position":block(other_position,my_indice,req["state"]["board"][other_position[0]][other_position[1]-1],req["state"]["board"][other_position[0]][other_position[1]+1])
+                        "position":block(other_position,my_indice,req["state"]["board"][other_position[0]-1][other_position[1]-2],req["state"]["board"][other_position[0]-1][other_position[1]+2])
                     }
-                if my_indice==float(1) and req["state"]["board"][other_position[0]+1][other_position[1]]!=4:
+                if my_indice==float(1) and req["state"]["board"][other_position[0]+1][other_position[1]]==3:
                     move={
                         "type":"blocker",
-                        "position":block(other_position,my_indice,req["state"]["board"][other_position[0]][other_position[1]-1],req["state"]["board"][other_position[0]][other_position[1]+1])
+                        "position":block(other_position,my_indice,req["state"]["board"][other_position[0]+1][other_position[1]-2],req["state"]["board"][other_position[0]+1][other_position[1]-2])
                     }
             else:            
                 if my_indice==float(0): #permet de bouger sur le plateau
@@ -184,12 +184,48 @@ while True:
                             "type":"pawn",
                             "position": [move_down(my_position,other_position)],
                         }
+                    else:
+                        indice=[0,16]
+                        for i in range(len(req["state"]["board"][my_position[0]+1])):
+                            if req["state"]["board"][my_position[0]+1][i]==3:
+                                if i<my_position[1]:
+                                    indice[0]=i
+                                elif i>my_position[1] and i<indice[1]:
+                                    indice[1]=i
+                        if abs(my_position[1]-indice[0])<=abs(my_position[1]-indice[1]):
+                            move={
+                                "type":"pawn",
+                                "position":[move_left(my_position,other_position)]
+                            }
+                        elif abs(my_position[1]-indice[0])>abs(my_position[1]-indice[1]):
+                            move={
+                                "type":"pawn",
+                                "position":[move_right(my_position,other_position)]
+                            }
                 if my_indice==float(1):
                     if req["state"]["board"][my_position[0]-1][my_position[1]]==float(3):
                         move={
                             "type":"pawn",
                             "position": [move_up(my_position,other_position)],
                         }
+                    else:
+                        indice=[0,16]
+                        for i in range(len(req["state"]["board"][my_position[0]-1])):
+                            if req["state"]["board"][my_position[0]+1][i]==3:
+                                if i<my_position[0]:
+                                    indice[0]=i
+                                elif i>my_position[0] and i<indice[1]:
+                                    indice[1]=i
+                        if abs(my_position[0]-indice[0])<=abs(my_position[1]-indice[1]):
+                            move={
+                                "type":"pawn",
+                                "position":[move_left(my_position,other_position)]
+                            }
+                        elif abs(my_position[0]-indice[0])>abs(my_position[1]-indice[1]):
+                            move={
+                                "type":"pawn",
+                                "position":[move_right(my_position,other_position)]
+                            }
             response_move={
                     "response": "move",
                     "move": move,
