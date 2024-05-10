@@ -84,25 +84,29 @@ def block(position,indice,left_case,right_case):
     if indice==float(0):
         blocker_pos1=[position[0]-1,position[1]]
         if position[1]==16:
+            blocker_pos2=[position[0]-3,position[1]-2]
+            blocker_pos1=[position[0]-3,position[1]]
+        elif right_case==4:
             blocker_pos2=[position[0]-1,position[1]-2]
-        if right_case==4:
-            blocker_pos2=[position[0]-1,position[1]-2]
-        if left_case==4:
+        elif left_case==4:
             blocker_pos2=[position[0]-1,position[1]+2]
-        if position[1]==0:
-            blocker_pos2=[position[0]-1,position[1]+2]
+        elif position[1]==0:
+            blocker_pos2=[position[0]-3,position[1]+2]
+            blocker_pos1=[position[0]-3,position[1]]
         else:
             blocker_pos2=[position[0]-1,position[1]-2]
     if indice==float(1):
         blocker_pos1=[position[0]+1,position[1]]
         if position[1]==16:
+            blocker_pos2=[position[0]+3,position[1]-2]
+            blocker_pos1=[position[0]+3,position[1]]
+        elif right_case==4:
             blocker_pos2=[position[0]+1,position[1]-2]
-        if right_case==4:
-            blocker_pos2=[position[0]+1,position[1]-2]
-        if left_case==4:
+        elif left_case==4:
             blocker_pos2=[position[0]+1,position[1]+2]
-        if position[1]==0:
+        elif position[1]==0:
             blocker_pos2=[position[0]+1,position[1]+2]
+            blocker_pos1=[position[0]+3,position[1]]
         else:
             blocker_pos2=[position[0]+1,position[1]-2]
     return [blocker_pos1,blocker_pos2]
@@ -153,6 +157,7 @@ while True:
             other_indice=0
             my_position=[0,0]
             other_position=[0,0]
+            other_fwd_case=0
             if req["state"]["players"][0]==nom: #permet de savoir si on est joueur 1 ou 2
                 my_indice=float(0)
                 other_indice=float(1)
@@ -166,17 +171,43 @@ while True:
                         my_position=[i,j]
                     if req["state"]["board"][i][j]==other_indice:
                         other_position=[i,j]
-            if distance(my_position,other_position,my_indice)[0]>distance(my_position,other_position,my_indice)[1] and req["state"]["blockers"][int(my_indice)]>0:
+            if other_indice==0:
+                other_fwd_case=req["state"]["board"][other_position[0]+1][other_position[1]]
+            else:
+                other_fwd_case=req["state"]["board"][other_position[0]-1][other_position[1]]
+            if distance(my_position,other_position,my_indice)[0]>distance(my_position,other_position,my_indice)[1] and req["state"]["blockers"][int(my_indice)]>0 and other_fwd_case==3:
                 if my_indice==float(0) and req["state"]["board"][other_position[0]-1][other_position[1]]==3:
-                    move={
+                    if other_position[1]==16:
+                        move={
                         "type":"blocker",
-                        "position":block(other_position,my_indice,req["state"]["board"][other_position[0]-1][other_position[1]-2],req["state"]["board"][other_position[0]-1][other_position[1]+2])
+                        "position":block(other_position,my_indice,req["state"]["board"][other_position[0]-1][other_position[1]-2],None)
                     }
-                if my_indice==float(1) and req["state"]["board"][other_position[0]+1][other_position[1]]==3:
-                    move={
+                    elif other_position[1]==0:
+                        {
                         "type":"blocker",
-                        "position":block(other_position,my_indice,req["state"]["board"][other_position[0]+1][other_position[1]-2],req["state"]["board"][other_position[0]+1][other_position[1]-2])
+                        "position":block(other_position,my_indice,None,req["state"]["board"][other_position[0]-1][other_position[1]+2])
                     }
+                    else:
+                        move={
+                            "type":"blocker",
+                            "position":block(other_position,my_indice,req["state"]["board"][other_position[0]-1][other_position[1]-2],req["state"]["board"][other_position[0]-1][other_position[1]+2])
+                        }
+                elif my_indice==float(1) and req["state"]["board"][other_position[0]+1][other_position[1]]==3:
+                    if other_position[1]==16:
+                        move={
+                        "type":"blocker",
+                        "position":block(other_position,my_indice,req["state"]["board"][other_position[0]+1][other_position[1]-2],None)
+                    }
+                    elif other_position[1]==0:
+                        move={
+                        "type":"blocker",
+                        "position":block(other_position,my_indice,None,req["state"]["board"][other_position[0]+1][other_position[1]+2])
+                    }
+                    else:
+                        move={
+                            "type":"blocker",
+                            "position":block(other_position,my_indice,req["state"]["board"][other_position[0]+1][other_position[1]-2],req["state"]["board"][other_position[0]+1][other_position[1]+2])
+                        }
             else:            
                 if my_indice==float(0): #permet de bouger sur le plateau
                     if req["state"]["board"][my_position[0]+1][my_position[1]]==float(3):
@@ -192,12 +223,12 @@ while True:
                                     indice[0]=i
                                 elif i>my_position[1] and i<indice[1]:
                                     indice[1]=i
-                        if abs(my_position[1]-indice[0])<=abs(my_position[1]-indice[1]):
+                        if abs(my_position[1]-indice[0])<=abs(my_position[1]-indice[1]) or my_position[1]==16:
                             move={
                                 "type":"pawn",
                                 "position":[move_left(my_position,other_position)]
                             }
-                        elif abs(my_position[1]-indice[0])>abs(my_position[1]-indice[1]):
+                        elif abs(my_position[1]-indice[0])>abs(my_position[1]-indice[1]) or my_position[1]==0:
                             move={
                                 "type":"pawn",
                                 "position":[move_right(my_position,other_position)]
