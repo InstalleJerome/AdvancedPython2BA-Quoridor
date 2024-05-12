@@ -124,7 +124,7 @@ ping_request={
 server.bind(('localhost',int(port)))
 server.listen()
 
-
+last_move=None
 
 response={
     "response" : "pong"
@@ -215,8 +215,15 @@ while True:
                             "type":"pawn",
                             "position": [move_down(my_position,other_position)],
                         }
+                        last_move="down"
                     else:
                         indice=[0,16]
+                        if req["state"]["board"][my_position[0]][my_position[1]-1]==4 and req["state"]["board"][my_position[0]][my_position[1]+1]==4:
+                            move={
+                            "type":"pawn",
+                            "position": [move_up(my_position,other_position)],
+                        }
+                            last_move="up"
                         for i in range(len(req["state"]["board"][my_position[0]+1])):
                             if req["state"]["board"][my_position[0]+1][i]==3:
                                 if i<my_position[1]:
@@ -228,19 +235,35 @@ while True:
                                 "type":"pawn",
                                 "position":[move_left(my_position,other_position)]
                             }
+                            last_move="left"
                         elif abs(my_position[1]-indice[0])>abs(my_position[1]-indice[1]) or my_position[1]==0:
                             move={
                                 "type":"pawn",
                                 "position":[move_right(my_position,other_position)]
                             }
+                            last_move="right"
                 if my_indice==float(1):
                     if req["state"]["board"][my_position[0]-1][my_position[1]]==float(3):
-                        move={
+                        if req["state"]["board"][my_position[0]][my_position[1]-1]==4 or req["state"]["board"][my_position[0]][my_position[1]+1]==4 and last_move=="down":
+                             move={
                             "type":"pawn",
-                            "position": [move_up(my_position,other_position)],
+                            "position": [move_down(my_position,other_position)],
                         }
+                             last_move="down"
+                        else:
+                            move={
+                                "type":"pawn",
+                                "position": [move_up(my_position,other_position)],
+                            }
+                            last_move="up"
                     else:
                         indice=[0,16]
+                        if req["state"]["board"][my_position[0]][my_position[1]-1]==4 and req["state"]["board"][my_position[0]][my_position[1]+1]==4:
+                            move={
+                            "type":"pawn",
+                            "position": [move_down(my_position,other_position)],
+                        }
+                            last_move="down"
                         for i in range(len(req["state"]["board"][my_position[0]-1])):
                             if req["state"]["board"][my_position[0]+1][i]==3:
                                 if i<my_position[0]:
@@ -252,11 +275,13 @@ while True:
                                 "type":"pawn",
                                 "position":[move_left(my_position,other_position)]
                             }
+                            last_move="left"
                         elif abs(my_position[0]-indice[0])>abs(my_position[1]-indice[1]):
                             move={
                                 "type":"pawn",
                                 "position":[move_right(my_position,other_position)]
                             }
+                            last_move="right"
             response_move={
                     "response": "move",
                     "move": move,
