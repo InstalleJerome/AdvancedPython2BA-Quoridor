@@ -256,8 +256,34 @@ while True:
                                 if i<my_position[1]:
                                     indice[0]=i
                                 elif i>my_position[1] and i<indice[1]:
-                                    indice[1]=i     
-                        if last_move=="left" and req["state"]["board"][my_position[0]][my_position[1]-1]!=4:
+                                    indice[1]=i  
+                        if my_position[1]!=0 and req["state"]["board"][my_position[0]][my_position[1]-1]==4:
+                            if abs(my_position[1]-indice[1])>4:
+                                move={
+                                "type":"pawn",
+                                "position": [move_up(my_position,other_position)],
+                                }
+                                last_move="up"
+                            else:
+                                move={
+                                "type":"pawn",
+                                "position":[move_right(my_position,other_position)]
+                                }
+                                last_move="right"
+                        elif my_position[1]!=16 and req["state"]["board"][my_position[0]][my_position[1]+1]==4:
+                            if abs(my_position[1]-indice[1])>4:
+                                move={
+                                "type":"pawn",
+                                "position": [move_up(my_position,other_position)],
+                                }
+                                last_move="up"
+                            else:
+                                move={
+                                "type":"pawn",
+                                "position":[move_left(my_position,other_position)]
+                                }
+                                last_move="left"   
+                        elif last_move=="left" and req["state"]["board"][my_position[0]][my_position[1]-1]!=4:
                             move={
                                 "type":"pawn",
                                 "position":[move_left(my_position,other_position)]
