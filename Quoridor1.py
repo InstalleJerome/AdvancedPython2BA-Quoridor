@@ -219,32 +219,6 @@ while True:
                     else:
                         indice=[0,45]
                         indice_column=17
-                        if my_position[1]!=0 and req["state"]["board"][my_position[0]][my_position[1]-1]==4:
-                            if abs(my_position[1]-indice[1])>4:
-                                move={
-                                "type":"pawn",
-                                "position": [move_up(my_position,other_position)],
-                                }
-                                last_move="up"
-                            else:
-                                move={
-                                "type":"pawn",
-                                "position":[move_right(my_position,other_position)]
-                                }
-                                last_move="right"
-                        elif my_position[1]!=16 and req["state"]["board"][my_position[0]][my_position[1]+1]==4:
-                            if abs(my_position[1]-indice[1])>4:
-                                move={
-                                "type":"pawn",
-                                "position": [move_up(my_position,other_position)],
-                                }
-                                last_move="up"
-                            else:
-                                move={
-                                "type":"pawn",
-                                "position":[move_left(my_position,other_position)]
-                                }
-                                last_move="left"
                         if req["state"]["board"][my_position[0]][my_position[1]-1]==4 and req["state"]["board"][my_position[0]][my_position[1]+1]==4:
                             move={
                             "type":"pawn",
@@ -329,6 +303,32 @@ while True:
                                     indice[0]=i
                                 elif i>my_position[0] and i<indice[1]:
                                     indice[1]=i
+                        if my_position[1]!=0 and req["state"]["board"][my_position[0]][my_position[1]-1]==4:
+                            if abs(my_position[1]-indice[1])>4:
+                                move={
+                                "type":"pawn",
+                                "position": [move_down(my_position,other_position)],
+                                }
+                                last_move="down"
+                            else:
+                                move={
+                                "type":"pawn",
+                                "position":[move_right(my_position,other_position)]
+                                }
+                                last_move="right"
+                        elif my_position[1]!=16 and req["state"]["board"][my_position[0]][my_position[1]+1]==4:
+                            if abs(my_position[1]-indice[1])>4:
+                                move={
+                                "type":"pawn",
+                                "position": [move_down(my_position,other_position)],
+                                }
+                                last_move="down"
+                            else:
+                                move={
+                                "type":"pawn",
+                                "position":[move_left(my_position,other_position)]
+                                }
+                                last_move="left"
                         if abs(my_position[0]-indice[0])<=abs(my_position[1]-indice[1]):
                             move={
                                 "type":"pawn",
