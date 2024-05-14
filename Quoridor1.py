@@ -358,13 +358,13 @@ while True:
                                 "position":[move_right(my_position,other_position)]
                                 }
                                 last_move="right"
-                        if abs(my_position[0]-indice[0])<abs(my_position[1]-indice[1]):
+                        if abs(my_position[0]-indice[0])<=abs(my_position[1]-indice[1]):
                             move={
                                 "type":"pawn",
                                 "position":[move_left(my_position,other_position)]
                             }
                             last_move="left"
-                        elif abs(my_position[0]-indice[0])>=abs(my_position[1]-indice[1]):
+                        elif abs(my_position[0]-indice[0])>abs(my_position[1]-indice[1]):
                             move={
                                 "type":"pawn",
                                 "position":[move_right(my_position,other_position)]
