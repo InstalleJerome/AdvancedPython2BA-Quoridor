@@ -67,6 +67,7 @@ def move_right(p_init1,p_init2):
         p_init1=[p_init1[0],p_init1[1]+2]
     return p_init1
 
+#calcule la distance de la fin du plateau de chacun des joueurs 
 def distance(position1,position2,indice):
     my_distance=0
     other_distance=0
@@ -78,6 +79,7 @@ def distance(position1,position2,indice):
         other_distance=16-position2[0]
     return [my_distance,other_distance]
 
+#fonction qui permet de poser un bloqueur
 def block(position,indice,left_case,right_case):
     blocker_pos1=[]
     blocker_pos2=[]
@@ -171,10 +173,11 @@ while True:
                         my_position=[i,j]
                     if req["state"]["board"][i][j]==other_indice:
                         other_position=[i,j]
-            if other_indice==0:
+            if other_indice==0: #permet de regarder la case devant l'autre joueur
                 other_fwd_case=req["state"]["board"][other_position[0]+1][other_position[1]]
             else:
                 other_fwd_case=req["state"]["board"][other_position[0]-1][other_position[1]]
+            #bloque l'adversaire s'il est plus loin que nous sur le plateau et qu'il n'est pas déjà bloqué
             if distance(my_position,other_position,my_indice)[0]>distance(my_position,other_position,my_indice)[1] and req["state"]["blockers"][int(my_indice)]>0 and other_fwd_case==3:
                 if my_indice==float(0) and req["state"]["board"][other_position[0]-1][other_position[1]]==3:
                     if other_position[1]==16:
@@ -192,6 +195,7 @@ while True:
                             "type":"blocker",
                             "position":block(other_position,my_indice,req["state"]["board"][other_position[0]-1][other_position[1]-2],req["state"]["board"][other_position[0]-1][other_position[1]+2])
                         }
+                #idem mais pour l'autre joueur
                 elif my_indice==float(1) and req["state"]["board"][other_position[0]+1][other_position[1]]==3:
                     if other_position[1]==16:
                         move={
@@ -210,28 +214,27 @@ while True:
                         }
             else:            
                 if my_indice==float(0): #permet de bouger sur le plateau
-                    if req["state"]["board"][my_position[0]+1][my_position[1]]==float(3):
+                    if req["state"]["board"][my_position[0]+1][my_position[1]]==float(3): #avance si la case devant nous est libre
                         move={
                             "type":"pawn",
                             "position": [move_down(my_position,other_position)],
                         }
                         last_move="down"
-                    else:
+                    else:#mpouvements si on est bloqué devant nous
                         indice=[0,45]
-                        indice_column=17
                         if req["state"]["board"][my_position[0]][my_position[1]-1]==4 and req["state"]["board"][my_position[0]][my_position[1]+1]==4:
                             move={
                             "type":"pawn",
                             "position": [move_up(my_position,other_position)],
                         }
                             last_move="up"
-                        for i in range(len(req["state"]["board"][my_position[0]+1])):
+                        for i in range(len(req["state"]["board"][my_position[0]+1])): #trouve quelles cases libres à gauche et à droite sont les plus proches
                             if req["state"]["board"][my_position[0]+1][i]==3:
                                 if i<my_position[1]:
                                     indice[0]=i
                                 elif i>my_position[1] and i<indice[1]:
                                     indice[1]=i  
-                        if my_position[1]!=0 and req["state"]["board"][my_position[0]][my_position[1]-1]==4:
+                        if my_position[1]!=0 and req["state"]["board"][my_position[0]][my_position[1]-1]==4: #continue à se déplacer verticalement si on est bloqué sur le côté et qu'on étatit initialement bloqué devant
                             if abs(my_position[1]-indice[1])>4:
                                 move={
                                 "type":"pawn",
@@ -244,7 +247,7 @@ while True:
                                 "position":[move_right(my_position,other_position)]
                                 }
                                 last_move="right"
-                        elif my_position[1]!=16 and req["state"]["board"][my_position[0]][my_position[1]+1]==4:
+                        elif my_position[1]!=16 and req["state"]["board"][my_position[0]][my_position[1]+1]==4: #permet de voir s'il faut reculer ou aller sur le côté si on est bloqué devant et sur le côté
                             if abs(my_position[1]-indice[1])>4:
                                 move={
                                 "type":"pawn",
@@ -257,7 +260,7 @@ while True:
                                 "position":[move_left(my_position,other_position)]
                                 }
                                 last_move="left"
-                        elif last_move=="up":
+                        elif last_move=="up": #permet de se déplacer sur le côté lorsqu'on sort d'un mur vertical (pour ne pas réavancer dans la colonne d'où on vient)
                             if req["state"]["board"][my_position[0]+1][my_position[1]-1]==4 and req["state"]["board"][my_position[0]][my_position[1]-1]==3:
                                 move={
                                 "type":"pawn",
@@ -276,7 +279,7 @@ while True:
                                 "position":[move_left(my_position,other_position)]
                             }
                             last_move="left"
-                        elif abs(my_position[1]-indice[0])<=abs(my_position[1]-indice[1]) or my_position[1]==16:
+                        elif abs(my_position[1]-indice[0])<=abs(my_position[1]-indice[1]) or my_position[1]==16: #permet de savoir si on doit aller à gauche où à droite lorsqu'on est bloqué juste devant
                             move={
                                 "type":"pawn",
                                 "position":[move_left(my_position,other_position)]
@@ -288,7 +291,7 @@ while True:
                                 "position":[move_right(my_position,other_position)]
                             }
                             last_move="right"
-                if my_indice==float(1):
+                if my_indice==float(1): #toutes les fonctionnalités sont les mêmes pour le deuxième joueur
                     if req["state"]["board"][my_position[0]-1][my_position[1]]==float(3):
                         if req["state"]["board"][my_position[0]][my_position[1]-1]==4 or req["state"]["board"][my_position[0]][my_position[1]+1]==4 and last_move=="down":
                              move={
@@ -355,23 +358,25 @@ while True:
                                 "position":[move_right(my_position,other_position)]
                                 }
                                 last_move="right"
-                        if abs(my_position[0]-indice[0])<=abs(my_position[1]-indice[1]):
+                        if abs(my_position[0]-indice[0])<abs(my_position[1]-indice[1]):
                             move={
                                 "type":"pawn",
                                 "position":[move_left(my_position,other_position)]
                             }
                             last_move="left"
-                        elif abs(my_position[0]-indice[0])>abs(my_position[1]-indice[1]):
+                        elif abs(my_position[0]-indice[0])>=abs(my_position[1]-indice[1]):
                             move={
                                 "type":"pawn",
                                 "position":[move_right(my_position,other_position)]
                             }
                             last_move="right"
+            #permet de mettre notre move en format json
             response_move={
                     "response": "move",
                     "move": move,
                     "message": "I'm simply the best"
                     }
+            #permet d'encoder notre json afin de pouvoir l'envoyer
             rep_move=json.dumps(response_move).encode()
             x=0
             #boucle d'envoi de l'action a effectuer
