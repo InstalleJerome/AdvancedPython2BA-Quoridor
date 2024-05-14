@@ -11,7 +11,7 @@ import json
 sconnect=socket.socket()
 
 #adresse de connection
-address=(('localhost',3000))
+address=(('172.17.10.59',3000))
 #identité
 matricule=input("matricule :")
 port=int(input("port :"))
@@ -123,7 +123,7 @@ ping_request={
 }
 
 #se connecte au client de jeu
-server.bind(('localhost',int(port)))
+server.bind(('0.0.0.0',int(port)))
 server.listen()
 
 last_move=None
@@ -314,7 +314,7 @@ while True:
                         }
                             last_move="down"
                         for i in range(len(req["state"]["board"][my_position[0]-1])):
-                            if req["state"]["board"][my_position[0]+1][i]==3:
+                            if req["state"]["board"][my_position[0]-1][i]==3:
                                 if i<my_position[0]:
                                     indice[0]=i
                                 elif i>my_position[0] and i<indice[1]:
